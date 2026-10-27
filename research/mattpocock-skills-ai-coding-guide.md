@@ -257,7 +257,7 @@ Review 必须指定 fixed point，例如 `main`、某个 commit 或 `HEAD~5`。�
 
 ## 七、在 Codex 中的实际使用方式
 
-当前这些 skill 已经安装在全局目录 `/Users/brad.xie/.agents/skills`，不需要重复安装或把它们复制到每个业务项目中。
+如果这些 skill 已经安装在用户级 skill 目录中，就不需要重复安装或把它们复制到每个业务项目中。
 
 在 Codex 中，可以直接用自然语言明确要求使用某个流程，例如：
 
