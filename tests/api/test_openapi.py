@@ -61,3 +61,48 @@ def test_openapi_documents_the_public_health_contract() -> None:
     health_schema = resolve_local_ref(health_ref, schema)
     assert health_schema["properties"]["status"]["type"] == "string"
     assert "#/$defs/" not in json.dumps(schema)
+
+
+def test_openapi_documents_the_query_contract() -> None:
+    client = cast(ClientLike, TestClient(create_app()))
+
+    schema = cast(dict[str, Any], client.get("/openapi.json").json())
+    operation = schema["paths"]["/api/v1/query"]["post"]
+
+    assert operation["tags"] == ["query"]
+    assert operation["summary"] == "Query the knowledge base"
+    assert operation["security"] == []
+
+    request_schema = resolve_local_ref(
+        operation["requestBody"]["content"]["application/json"]["schema"],
+        schema,
+    )
+    assert set(request_schema["properties"]) >= {"question", "top_k"}
+    assert request_schema["properties"]["question"]["minLength"] == 1
+    assert request_schema["properties"]["question"]["maxLength"] == 2000
+    assert request_schema["properties"]["top_k"]["minimum"] == 1
+    assert request_schema["properties"]["top_k"]["maximum"] == 5
+
+    response_schema = resolve_local_ref(
+        operation["responses"]["200"]["content"]["application/json"]["schema"],
+        schema,
+    )
+    assert set(response_schema["properties"]) >= {
+        "code",
+        "msg",
+        "trace_id",
+        "data",
+    }
+    query_data_schema = resolve_local_ref(
+        next(
+            branch
+            for branch in response_schema["properties"]["data"]["anyOf"]
+            if "$ref" in branch
+        ),
+        schema,
+    )
+    assert set(query_data_schema["properties"]) == {
+        "answer",
+        "citations",
+        "no_answer",
+    }
