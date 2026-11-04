@@ -26,6 +26,16 @@ uv run pyright
 uv run pytest
 ```
 
+Run the lexical evaluation baseline against the synthetic evaluation fixtures:
+
+```bash
+uv run python -m rag_anchor.evaluation --set evals/sets/rag-anchor-v1.yaml --embedding-mode lexical
+```
+
+The manifest at `evals/sets/rag-anchor-v1.yaml` points to `fixtures/evaluation/`.
+Vector mode (`fixed_vector`) is reserved for a later milestone and currently exits
+with a clear not-wired-yet error.
+
 ## Project boundaries
 
 The initial scaffold does not require model credentials, external source
