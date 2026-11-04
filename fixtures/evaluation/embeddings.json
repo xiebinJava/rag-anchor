@@ -1,0 +1,7 @@
+{
+  "description": "Deterministic fixed vectors for CI vector-retrieval tests only; not a semantic embedding model.",
+  "embedding_version": "evaluation-fixed-v1",
+  "model_key": "evaluation-fixed",
+  "dimensions": 8,
+  "vectors": {}
+}

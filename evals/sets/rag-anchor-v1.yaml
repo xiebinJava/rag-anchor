@@ -1,0 +1,62 @@
+dataset_version: rag-anchor-v1
+knowledge_root: fixtures/evaluation
+embedding_mode: lexical
+cases:
+  - case_id: cn-health-status
+    question: 健康检查端点返回的 status 字段表示什么？
+    expected_document_ids:
+      - chinese
+  - case_id: cn-local-dev
+    question: 本地开发如何使用 uv sync 安装依赖并启动 HTTP 服务？
+    expected_document_ids:
+      - chinese
+  - case_id: cn-eval-mode
+    question: RAG_ANCHOR_EVAL_MODE 支持哪些评估模式？
+    expected_document_ids:
+      - chinese
+  - case_id: en-health-endpoint
+    question: What does the health route report when the process is alive?
+    expected_document_ids:
+      - english
+  - case_id: en-query-contract
+    question: How do clients call the query API and what is the top_k range?
+    expected_document_ids:
+      - english
+  - case_id: en-local-setup
+    question: Which command installs development dependencies for local work?
+    expected_document_ids:
+      - english
+  - case_id: tech-chunk-config
+    question: List the RAG_ANCHOR_CHUNK_SIZE and RAG_ANCHOR_CHUNK_OVERLAP configuration keys.
+    expected_document_ids:
+      - technical-identifiers
+  - case_id: tech-class-names
+    question: Which classes load markdown fixtures and orchestrate queries?
+    expected_document_ids:
+      - technical-identifiers
+  - case_id: tech-external-id
+    question: What external identifier is used for the technical identifiers fixture?
+    expected_document_ids:
+      - technical-identifiers
+  - case_id: multi-doc-health-and-query
+    question: 健康检查 status ok 与 POST /api/v1/query 的 question 和 top_k 字段
+    expected_document_ids:
+      - chinese
+      - english
+  - case_id: mixed-terms-eval
+    question: 中英文混合：lexical 模式与 MarkdownFixtureSource 文档标识
+    expected_document_ids:
+      - chinese
+      - technical-identifiers
+  - case_id: no-answer-astronomy
+    question: q7x9noansweralpha
+    is_no_answer: true
+    expected_document_ids: []
+  - case_id: no-answer-cooking-fiction
+    question: q7x9noanswerbeta
+    is_no_answer: true
+    expected_document_ids: []
+  - case_id: no-answer-unrelated-garden
+    question: q7x9noanswergamma
+    is_no_answer: true
+    expected_document_ids: []
