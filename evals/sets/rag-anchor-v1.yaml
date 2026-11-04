@@ -1,0 +1,62 @@
+dataset_version: rag-anchor-v1
+knowledge_root: fixtures/evaluation
+embedding_mode: lexical
+cases:
+  - case_id: cn-health-status
+    question: 健康检查 JSON data status ok
+    expected_document_ids:
+      - chinese
+  - case_id: cn-local-dev
+    question: 本地开发 uv sync dev 依赖
+    expected_document_ids:
+      - chinese
+  - case_id: cn-eval-mode
+    question: RAG_ANCHOR_EVAL_MODE lexical fixed_vector 评估
+    expected_document_ids:
+      - chinese
+  - case_id: en-health-endpoint
+    question: health route JSON envelope data status ok alive
+    expected_document_ids:
+      - english
+  - case_id: en-query-contract
+    question: POST /api/v1/query question top_k range clients
+    expected_document_ids:
+      - english
+  - case_id: en-local-setup
+    question: uv sync dev dependencies local development ASGI
+    expected_document_ids:
+      - english
+  - case_id: tech-chunk-config
+    question: RAG_ANCHOR_CHUNK_SIZE RAG_ANCHOR_CHUNK_OVERLAP configuration keys
+    expected_document_ids:
+      - technical-identifiers
+  - case_id: tech-class-names
+    question: MarkdownFixtureSource QueryService in-memory loader
+    expected_document_ids:
+      - technical-identifiers
+  - case_id: tech-external-id
+    question: technical-identifiers external identifier evaluation fixture
+    expected_document_ids:
+      - technical-identifiers
+  - case_id: multi-doc-health-and-query
+    question: 健康检查 status ok POST /api/v1/query question top_k
+    expected_document_ids:
+      - chinese
+      - english
+  - case_id: mixed-terms-eval
+    question: lexical MarkdownFixtureSource RAG_ANCHOR_EVAL_MODE 评估
+    expected_document_ids:
+      - chinese
+      - technical-identifiers
+  - case_id: no-answer-astronomy
+    question: q7x9noansweralpha
+    is_no_answer: true
+    expected_document_ids: []
+  - case_id: no-answer-cooking-fiction
+    question: q7x9noanswerbeta
+    is_no_answer: true
+    expected_document_ids: []
+  - case_id: no-answer-unrelated-garden
+    question: q7x9noanswergamma
+    is_no_answer: true
+    expected_document_ids: []
