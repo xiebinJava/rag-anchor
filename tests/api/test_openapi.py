@@ -28,10 +28,23 @@ def resolve_local_ref(
     return cast(dict[str, Any], current)
 
 
+def assert_local_refs_resolve(value: Any, document: dict[str, Any]) -> None:
+    if isinstance(value, dict):
+        if "$ref" in value:
+            resolve_local_ref(cast(dict[str, Any], value), document)
+        typed_value = cast(dict[str, Any], value)
+        for child in typed_value.values():
+            assert_local_refs_resolve(child, document)
+    elif isinstance(value, list):
+        for child in cast(list[Any], value):
+            assert_local_refs_resolve(child, document)
+
+
 def test_openapi_documents_the_public_health_contract() -> None:
     client = cast(ClientLike, TestClient(create_app()))
 
     schema = cast(dict[str, Any], client.get("/openapi.json").json())
+    assert_local_refs_resolve(schema, schema)
     operation = schema["paths"]["/health"]["get"]
 
     assert operation["tags"] == ["system"]
@@ -67,6 +80,7 @@ def test_openapi_documents_the_query_contract() -> None:
     client = cast(ClientLike, TestClient(create_app()))
 
     schema = cast(dict[str, Any], client.get("/openapi.json").json())
+    assert_local_refs_resolve(schema, schema)
     operation = schema["paths"]["/api/v1/query"]["post"]
 
     assert operation["tags"] == ["query"]
@@ -106,3 +120,34 @@ def test_openapi_documents_the_query_contract() -> None:
         "citations",
         "no_answer",
     }
+    citation_schema = resolve_local_ref(
+        query_data_schema["properties"]["citations"]["items"],
+        schema,
+    )
+    assert set(citation_schema["properties"]) == {
+        "document_id",
+        "title",
+        "source_url",
+        "chunk_id",
+        "position",
+        "snippet",
+    }
+
+    validation_response = resolve_local_ref(
+        operation["responses"]["422"]["content"]["application/json"]["schema"],
+        schema,
+    )
+    validation_data = resolve_local_ref(
+        next(
+            branch
+            for branch in validation_response["properties"]["data"]["anyOf"]
+            if "$ref" in branch
+        ),
+        schema,
+    )
+    assert set(validation_data["properties"]) == {"errors"}
+    validation_issue = resolve_local_ref(
+        validation_data["properties"]["errors"]["items"],
+        schema,
+    )
+    assert set(validation_issue["properties"]) == {"loc", "msg", "type"}

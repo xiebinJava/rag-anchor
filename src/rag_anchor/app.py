@@ -5,6 +5,7 @@ from uuid import uuid4
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+from rag_anchor.api.errors import register_error_handlers
 from rag_anchor.api.query import create_query_router
 from rag_anchor.api.response import ResponseResult
 from rag_anchor.rag.query import QueryService
@@ -21,6 +22,7 @@ def create_app(query_service: QueryService | None = None) -> FastAPI:
     """Create the RAGAnchor ASGI application."""
 
     application = FastAPI(title="RAGAnchor", version="0.1.0")
+    register_error_handlers(application)
     service = query_service or QueryService(default_fixture_source())
 
     application.include_router(create_query_router(service, lambda: uuid4().hex))

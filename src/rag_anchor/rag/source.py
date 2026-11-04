@@ -20,6 +20,9 @@ class MarkdownFixtureSource:
     root: Path
 
     def load_documents(self) -> tuple[Document, ...]:
+        if not self.root.is_dir():
+            raise FileNotFoundError(f"Fixture root does not exist: {self.root}")
+
         documents: list[Document] = []
         for path in sorted(self.root.glob("*.md")):
             content = path.read_text(encoding="utf-8").strip()

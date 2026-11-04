@@ -11,3 +11,10 @@ def test_markdown_fixture_requires_a_title(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="has no title"):
         MarkdownFixtureSource(tmp_path).load_documents()
+
+
+def test_markdown_fixture_requires_an_existing_directory(tmp_path: Path) -> None:
+    missing_root = tmp_path / "missing"
+
+    with pytest.raises(FileNotFoundError, match="Fixture root does not exist"):
+        MarkdownFixtureSource(missing_root).load_documents()

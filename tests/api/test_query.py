@@ -1,9 +1,10 @@
-from typing import Any, Protocol, cast
+from typing import Any, NoReturn, Protocol, cast
 
 from fastapi.testclient import TestClient
 from pytest import mark
 
 from rag_anchor.app import create_app
+from rag_anchor.rag.query import QueryService
 
 
 class ResponseLike(Protocol):
@@ -14,6 +15,12 @@ class ResponseLike(Protocol):
 
 class ClientLike(Protocol):
     def post(self, url: str, json: dict[str, Any]) -> ResponseLike: ...
+
+
+class RejectingQueryService:
+    def query(self, question: str, top_k: int) -> NoReturn:
+        del question, top_k
+        raise AssertionError("whitespace-only input reached query service")
 
 
 def test_query_returns_grounded_answer_and_citation() -> None:
@@ -66,6 +73,15 @@ def test_query_respects_top_k_for_returned_citations() -> None:
     assert len(payload["data"]["citations"]) == 1
 
 
+def test_query_rejects_whitespace_only_before_service_call() -> None:
+    app = create_app(cast(QueryService, RejectingQueryService()))
+    client = cast(ClientLike, TestClient(app))
+
+    response = client.post("/api/v1/query", json={"question": " \t\n"})
+
+    assert response.status_code == 422
+
+
 @mark.parametrize(
     "request_body",
     [
@@ -81,3 +97,8 @@ def test_query_rejects_invalid_request(request_body: dict[str, Any]) -> None:
     response = client.post("/api/v1/query", json=request_body)
 
     assert response.status_code == 422
+    payload = cast(dict[str, Any], response.json())
+    assert payload["code"] == 40001
+    assert payload["msg"] == "validation_error"
+    assert payload["trace_id"]
+    assert payload["data"]["errors"]

@@ -42,7 +42,10 @@ def chunk_documents(documents: tuple[Document, ...]) -> tuple[Chunk, ...]:
         )
         position = 0
         for paragraph in paragraphs:
-            if not paragraph or paragraph.startswith("# "):
+            body = "\n".join(
+                line for line in paragraph.splitlines() if not line.startswith("# ")
+            ).strip()
+            if not body:
                 continue
             position += 1
             chunks.append(
@@ -51,7 +54,7 @@ def chunk_documents(documents: tuple[Document, ...]) -> tuple[Chunk, ...]:
                     document_id=document.document_id,
                     title=document.title,
                     source_url=document.source_url,
-                    text=paragraph,
+                    text=body,
                     position=position,
                 )
             )

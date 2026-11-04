@@ -3,8 +3,9 @@
 from collections.abc import Callable
 
 from fastapi import APIRouter
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
+from rag_anchor.api.errors import ValidationErrorData
 from rag_anchor.api.response import ResponseResult
 from rag_anchor.rag.models import QueryResult
 from rag_anchor.rag.query import QueryService
@@ -15,6 +16,13 @@ class QueryRequest(BaseModel):
 
     question: str = Field(min_length=1, max_length=2000)
     top_k: int = Field(default=3, ge=1, le=5)
+
+    @field_validator("question")
+    @classmethod
+    def question_must_contain_text(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("question must contain non-whitespace text")
+        return value
 
 
 class Citation(BaseModel):
@@ -68,6 +76,12 @@ def create_query_router(
         tags=["query"],
         summary="Query the knowledge base",
         openapi_extra={"security": []},
+        responses={
+            422: {
+                "model": ResponseResult[ValidationErrorData],
+                "description": "Request validation error",
+            }
+        },
     )
     def query(
         request: QueryRequest,
